@@ -44,7 +44,7 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             onPressed: () {
               Navigator.of(ctx).pop();
-              context.read<AuthBloc>().add(AuthSignOutRequested());
+              context.read<AuthBloc>().add(AuthAccountDeleteRequested());
               Navigator.of(context).popUntil((route) => route.isFirst);
             },
             child: const Text('Delete Permanently', style: TextStyle(color: Colors.white)),

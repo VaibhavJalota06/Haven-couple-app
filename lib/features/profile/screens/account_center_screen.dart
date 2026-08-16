@@ -432,7 +432,26 @@ class _AccountCenterScreenState extends State<AccountCenterScreen> {
 
                   const SizedBox(height: 28),
 
-                  // 7. Sign Out of Haven
+                  // 7. Account Ownership & Control (Deactivation & Deletion)
+                  _buildSectionHeader('Account Ownership & Control'),
+                  GlassCard(
+                    child: Column(
+                      children: [
+                        ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          leading: const Icon(Icons.shield_outlined, color: AppColors.champagne),
+                          title: const Text('Deactivation or Deletion', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                          subtitle: const Text('Temporarily deactivate or permanently delete your account and data', style: TextStyle(fontSize: 12)),
+                          trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
+                          onTap: () => _showAccountOwnershipModal(context),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // 8. Sign Out of Haven
                   ListTile(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -481,6 +500,142 @@ class _AccountCenterScreenState extends State<AccountCenterScreen> {
           },
         );
       },
+    );
+  }
+
+  void _showAccountOwnershipModal(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? AppColors.darkSurfaceElevated : Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (modalCtx) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(color: Colors.grey.shade400, borderRadius: BorderRadius.circular(2)),
+              ),
+            ),
+            const Text(
+              'Account Ownership & Control',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Choose what happens to your Haven profile, couple space and cloud data.',
+              style: TextStyle(fontSize: 13, color: Colors.grey),
+            ),
+            const SizedBox(height: 18),
+            // Deactivate Card
+            ListTile(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: isDark ? Colors.white10 : Colors.grey.shade200)),
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: AppColors.champagne.withOpacity(0.15), shape: BoxShape.circle),
+                child: const Icon(Icons.nightlight_round, color: AppColors.champagne, size: 22),
+              ),
+              title: const Text('Deactivate Account', style: TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: const Text('Temporarily pauses your account. Your profile is hidden until you log back in.', style: TextStyle(fontSize: 12)),
+              onTap: () {
+                Navigator.of(modalCtx).pop();
+                _confirmDeactivate(context);
+              },
+            ),
+            const SizedBox(height: 12),
+            // Delete Card
+            ListTile(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: AppColors.error.withOpacity(0.3))),
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: AppColors.error.withOpacity(0.15), shape: BoxShape.circle),
+                child: const Icon(Icons.delete_forever_rounded, color: AppColors.error, size: 22),
+              ),
+              title: const Text('Delete Account Permanently', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.error)),
+              subtitle: const Text('Irreversible. Permanently purges your account, vault items, and all relationship records from Supabase.', style: TextStyle(fontSize: 12)),
+              onTap: () {
+                Navigator.of(modalCtx).pop();
+                _confirmDelete(context);
+              },
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _confirmDeactivate(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Deactivate Account?'),
+        content: const Text('Your profile and feed posts will be paused. You can reactivate anytime simply by signing back in.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.champagne,
+              foregroundColor: Colors.black,
+            ),
+            onPressed: () {
+              Navigator.of(dialogCtx).pop();
+              context.read<AuthBloc>().add(AuthAccountDeactivateRequested());
+              Navigator.of(context).popUntil((route) => route.isFirst);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Account deactivated. See you soon! 🌙')),
+              );
+            },
+            child: const Text('Deactivate', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Permanently Delete Account?'),
+        content: const Text('This action cannot be undone. All your messages, private vault memories, photos, and couple space will be permanently erased from Supabase.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.of(dialogCtx).pop();
+              context.read<AuthBloc>().add(AuthAccountDeleteRequested());
+              Navigator.of(context).popUntil((route) => route.isFirst);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Your account and data have been permanently deleted.')),
+              );
+            },
+            child: const Text('Delete Permanently', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
     );
   }
 

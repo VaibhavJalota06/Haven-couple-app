@@ -9,6 +9,7 @@ class AuthRepository {
   AuthRepository({SupabaseClient? client}) : _client = client ?? SupabaseService.client;
 
   User? get currentUser => _client.auth.currentUser;
+  String? get currentUserId => _client.auth.currentUser?.id;
   bool get isAuthenticated => _client.auth.currentUser != null || _localDemoUser != null;
 
   /// Sign up with email & password (with seamless offline fallback)
@@ -205,5 +206,45 @@ class AuthRepository {
         createdAt: DateTime.now(),
       );
     }
+  }
+
+  /// Temporarily deactivate account
+  Future<void> deactivateAccount() async {
+    final userId = currentUserId;
+    if (userId != null) {
+      try {
+        await _client.rpc('deactivate_user_account').timeout(const Duration(seconds: 8));
+      } catch (_) {
+        try {
+          await _client.from('profiles').update({
+            'is_online': false,
+            'mood': 'Deactivated (Away)',
+            'mood_emoji': '🌙',
+            'updated_at': DateTime.now().toIso8601String(),
+          }).eq('id', userId).timeout(const Duration(seconds: 8));
+        } catch (_) {}
+      }
+    }
+    await signOut();
+  }
+
+  /// Permanently delete account and all associated couple data
+  Future<void> deleteAccountPermanently() async {
+    final userId = currentUserId;
+    if (userId != null) {
+      try {
+        await _client.rpc('delete_user_account').timeout(const Duration(seconds: 8));
+      } catch (_) {
+        try {
+          // Direct fallback cascade deletion
+          await _client.from('vault_items').delete().eq('owner_id', userId);
+          await _client.from('posts').delete().eq('user_id', userId);
+          await _client.from('connection_requests').delete().or('sender_id.eq.$userId,receiver_id.eq.$userId');
+          await _client.from('relationships').delete().or('user1_id.eq.$userId,user2_id.eq.$userId');
+          await _client.from('profiles').delete().eq('id', userId);
+        } catch (_) {}
+      }
+    }
+    await signOut();
   }
 }

@@ -99,3 +99,7 @@ class AuthProfileUpdateRequested extends AuthEvent {
         moodEmoji,
       ];
 }
+
+class AuthAccountDeactivateRequested extends AuthEvent {}
+
+class AuthAccountDeleteRequested extends AuthEvent {}

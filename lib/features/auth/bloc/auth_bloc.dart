@@ -15,6 +15,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthPasswordResetRequested>(_onAuthPasswordResetRequested);
     on<AuthSignOutRequested>(_onAuthSignOutRequested);
     on<AuthProfileUpdateRequested>(_onAuthProfileUpdateRequested);
+    on<AuthAccountDeactivateRequested>(_onAuthAccountDeactivateRequested);
+    on<AuthAccountDeleteRequested>(_onAuthAccountDeleteRequested);
   }
 
   Future<void> _onAuthCheckRequested(
@@ -119,6 +121,32 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       } catch (e) {
         emit(AuthFailure(e.toString().replaceAll('Exception: ', '')));
       }
+    }
+  }
+
+  Future<void> _onAuthAccountDeactivateRequested(
+    AuthAccountDeactivateRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    try {
+      await _authRepository.deactivateAccount();
+      emit(Unauthenticated());
+    } catch (e) {
+      emit(AuthFailure(e.toString().replaceAll('Exception: ', '')));
+    }
+  }
+
+  Future<void> _onAuthAccountDeleteRequested(
+    AuthAccountDeleteRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    try {
+      await _authRepository.deleteAccountPermanently();
+      emit(Unauthenticated());
+    } catch (e) {
+      emit(AuthFailure(e.toString().replaceAll('Exception: ', '')));
     }
   }
 }
