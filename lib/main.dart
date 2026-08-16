@@ -112,20 +112,7 @@ class AppRootGate extends StatelessWidget {
       },
       builder: (context, authState) {
         if (authState is Authenticated) {
-          return BlocBuilder<CoupleBloc, CoupleState>(
-            builder: (context, coupleState) {
-              if (coupleState is CouplePaired) {
-                return const MainNavigationScreen();
-              } else if (coupleState is CoupleNotPaired) {
-                if (coupleState.pendingRelationship != null) {
-                  return const CreateRelationshipScreen();
-                }
-                return const CoupleOnboardingScreen();
-              }
-              // While checking couple status, default to dashboard
-              return const MainNavigationScreen();
-            },
-          );
+          return const MainNavigationScreen();
         }
 
         return const WelcomeScreen();

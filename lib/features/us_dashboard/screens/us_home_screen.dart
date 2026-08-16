@@ -10,6 +10,8 @@ import '../../calls/screens/video_call_screen.dart';
 import '../../chat/screens/chat_screen.dart';
 import '../../couple_connection/bloc/couple_bloc.dart';
 import '../../couple_connection/bloc/couple_state.dart';
+import '../../couple_connection/screens/couple_onboarding_screen.dart';
+import '../../couple_connection/screens/create_relationship_screen.dart';
 import '../../memories/screens/add_memory_screen.dart';
 import '../../plans/screens/plans_hub_screen.dart';
 import '../../together/screens/together_hub_screen.dart';
@@ -386,6 +388,46 @@ class UsHomeScreen extends StatelessWidget {
                                         ? AppColors.textSecondaryDark
                                         : AppColors.textSecondaryLight,
                                   ),
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: ElevatedButton.icon(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.champagne,
+                                          foregroundColor: Colors.black,
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                          padding: const EdgeInsets.symmetric(vertical: 12),
+                                        ),
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(builder: (_) => const CreateRelationshipScreen()),
+                                          );
+                                        },
+                                        icon: const Icon(Icons.share_rounded, size: 16, color: Colors.black),
+                                        label: const Text('Invite Partner', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: OutlinedButton.icon(
+                                        style: OutlinedButton.styleFrom(
+                                          side: const BorderSide(color: AppColors.champagneDark),
+                                          foregroundColor: isDark ? AppColors.champagne : AppColors.champagneDark,
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                          padding: const EdgeInsets.symmetric(vertical: 12),
+                                        ),
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(builder: (_) => const CoupleOnboardingScreen()),
+                                          );
+                                        },
+                                        icon: const Icon(Icons.vpn_key_rounded, size: 16),
+                                        label: const Text('Join Code', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ],
