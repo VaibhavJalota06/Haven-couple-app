@@ -56,6 +56,16 @@ class AuthRepository {
     return _localDemoUser!;
   }
 
+  /// Resend verification email to user
+  Future<void> resendVerificationEmail(String email) async {
+    try {
+      await _client.auth.resend(
+        type: OtpType.signup,
+        email: email,
+      );
+    } catch (_) {}
+  }
+
   /// Sign in with email & password (with seamless offline fallback)
   Future<UserProfile> signInWithEmail({
     required String email,

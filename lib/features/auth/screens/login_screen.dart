@@ -8,6 +8,7 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import 'forgot_password_screen.dart';
 import 'register_screen.dart';
+import '../repositories/auth_repository.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -46,13 +47,18 @@ class _LoginScreenState extends State<LoginScreen> {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: AppColors.error,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          if (state.message.toLowerCase().contains('email not confirmed') ||
+              state.message.toLowerCase().contains('unconfirmed')) {
+            _showEmailVerificationPrompt(context, _emailController.text.trim());
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: AppColors.error,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
         } else if (state is Authenticated) {
           Navigator.of(context).popUntil((route) => route.isFirst);
         }
@@ -188,6 +194,41 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       },
+    );
+  }
+
+  void _showEmailVerificationPrompt(BuildContext context, String email) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: const [
+            Icon(Icons.mark_email_unread_rounded, color: AppColors.champagne),
+            SizedBox(width: 8),
+            Text('Verify Your Email', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Text(
+          'A confirmation link was sent to $email. Please check your inbox and click the link to activate your account before logging in.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              AuthRepository().resendVerificationEmail(email);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Verification email resent! 📬')),
+              );
+            },
+            child: const Text('Resend Email'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Got it!'),
+          ),
+        ],
+      ),
     );
   }
 }
