@@ -7,6 +7,7 @@ import '../../../core/widgets/glass_card.dart';
 import '../../couple_connection/bloc/couple_bloc.dart';
 import '../../couple_connection/bloc/couple_state.dart';
 import '../../couple_connection/screens/couple_onboarding_screen.dart';
+import 'love_notes_capsule_screen.dart';
 import 'shared_drawing_canvas_screen.dart';
 import 'truth_or_dare_game.dart';
 import 'watch_room_screen.dart';
@@ -207,6 +208,26 @@ class TogetherHubScreen extends StatelessWidget {
             );
           },
         ).animate().fadeIn(delay: 200.ms),
+
+        const SizedBox(height: 12),
+
+        _buildActivityCard(
+          context,
+          title: 'Time Capsule Love Letters 💌🔒',
+          description: 'Seal surprise love letters to unlock on future birthdays & anniversaries.',
+          icon: Icons.mark_email_unread_rounded,
+          accentColor: AppColors.champagne,
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => LoveNotesCapsuleScreen(
+                  relationshipId: relationshipId,
+                  partnerName: partnerName,
+                ),
+              ),
+            );
+          },
+        ).animate().fadeIn(delay: 250.ms),
 
         const SizedBox(height: 28),
 
