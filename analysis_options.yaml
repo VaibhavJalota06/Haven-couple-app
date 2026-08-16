@@ -1,0 +1,29 @@
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    avoid_print: true
+    prefer_const_constructors: true
+    prefer_const_literals_to_create_immutables: true
+    prefer_final_locals: true
+    unnecessary_new: true
+    unnecessary_this: true
+    always_declare_return_types: true
+    annotate_overrides: true
+    avoid_empty_else: true
+    avoid_relative_lib_imports: true
+    avoid_shadowing_type_parameters: true
+    avoid_types_as_parameter_names: true
+    await_only_futures: true
+    camel_case_extensions: true
+    curly_braces_in_flow_control_structures: true
+    empty_catches: true
+    file_names: true
+    hash_and_equals: true
+    no_duplicate_case_values: true
+    prefer_is_empty: true
+    prefer_is_not_empty: true
+    prefer_iterable_whereType: true
+    unrelated_type_equality_checks: true
+    use_key_in_widget_constructors: true
+    valid_regexps: true
