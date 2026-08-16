@@ -20,7 +20,7 @@ class MemoriesTimelineScreen extends StatefulWidget {
 
 class _MemoriesTimelineScreenState extends State<MemoriesTimelineScreen> {
   final _memoriesRepository = MemoriesRepository();
-  final Set<String> _favoriteIds = {'demo_m1', 'demo_m2'};
+  final Set<String> _favoriteIds = {};
 
   void _toggleFavorite(String memoryId) {
     setState(() {
@@ -262,8 +262,32 @@ class _MemoriesTimelineScreenState extends State<MemoriesTimelineScreen> {
         final relationship = (coupleState is CouplePaired) ? coupleState.relationship : null;
 
         if (relationship == null) {
-          return const Scaffold(
-            body: HavenLoadingIndicator(message: 'Loading memories...'),
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Shared Memories', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.favorite_border_rounded, size: 54, color: AppColors.champagne),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'No memories yet',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Pair with your partner to start capturing your precious moments and building your timeline together.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           );
         }
 

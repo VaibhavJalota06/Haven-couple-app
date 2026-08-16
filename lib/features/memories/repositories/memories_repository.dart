@@ -13,74 +13,30 @@ class MemoriesRepository {
 
   String? get currentUserId => _client.auth.currentUser?.id;
 
-  final List<MemoryModel> _localMemories = [
-    MemoryModel(
-      id: 'demo_m1',
-      relationshipId: 'demo_couple_space',
-      authorId: 'auth_id',
-      title: 'First Trip to the Coast',
-      description: 'Watching the golden sunset over the Pacific horizon and listening to the waves crash against the cliffs.',
-      memoryDate: DateTime(2026, 7, 17),
-      locationName: 'Sunset Cliffs, San Diego',
-      category: 'First Trip',
-      mediaUrls: const [
-        'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
-        'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=800&q=80',
-      ],
-      isFavorite: true,
-      createdAt: DateTime(2026, 7, 17),
-    ),
-    MemoryModel(
-      id: 'demo_m2',
-      relationshipId: 'demo_couple_space',
-      authorId: 'auth_id',
-      title: 'The Day We Met',
-      description: 'Sparks flew across the coffee shop table over warm cappuccinos. We talked for 4 hours non-stop.',
-      memoryDate: DateTime(2023, 6, 15),
-      locationName: 'Little Bean Roastery',
-      category: 'Anniversary',
-      mediaUrls: const [
-        'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&q=80',
-        'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&q=80',
-      ],
-      isFavorite: true,
-      createdAt: DateTime(2023, 6, 15),
-    ),
-    MemoryModel(
-      id: 'demo_m3',
-      relationshipId: 'demo_couple_space',
-      authorId: 'auth_id',
-      title: 'Starry Night Camping in Yosemite',
-      description: 'Campfire under a million stars, sharing secrets and laughing until 3 AM.',
-      memoryDate: DateTime(2024, 9, 22),
-      locationName: 'Yosemite Valley, CA',
-      category: 'Adventures',
-      mediaUrls: const [
-        'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&q=80',
-      ],
-      isFavorite: false,
-      createdAt: DateTime(2024, 9, 22),
-    ),
-  ];
+  final List<MemoryModel> _localMemories = [];
 
   List<MemoryModel> get localMemories => List.unmodifiable(_localMemories);
 
   /// Stream or fetch memories chronologically
   Stream<List<MemoryModel>> getMemoriesStream(String relationshipId) async* {
     yield _localMemories;
-    try {
-      final stream = _client
-          .from('memories')
-          .stream(primaryKey: ['id'])
-          .eq('relationship_id', relationshipId)
-          .order('memory_date', ascending: false)
-          .map((data) {
-            final remote = data.map((json) => MemoryModel.fromJson(json)).toList();
-            return remote.isNotEmpty ? remote : _localMemories;
-          });
-      yield* stream;
-    } catch (_) {
-      yield _localMemories;
+    if (relationshipId.isNotEmpty) {
+      try {
+        final stream = _client
+            .from('memories')
+            .stream(primaryKey: ['id'])
+            .eq('relationship_id', relationshipId)
+            .order('memory_date', ascending: false)
+            .map((data) {
+              final remote = data.map((json) => MemoryModel.fromJson(json)).toList();
+              _localMemories.clear();
+              _localMemories.addAll(remote);
+              return _localMemories;
+            });
+        yield* stream;
+      } catch (_) {
+        yield _localMemories;
+      }
     }
   }
 

@@ -44,28 +44,7 @@ class CoupleRepository {
       } catch (_) {}
     }
 
-    // Default paired demo relationship for testing all app features
-    _localDemoRelationship = RelationshipModel(
-      id: 'demo_couple_space',
-      user1Id: userId ?? 'user_1',
-      user2Id: 'partner_maya',
-      inviteCode: 'HAVEN2',
-      status: RelationshipStatus.active,
-      anniversaryDate: DateTime(2023, 6, 15),
-      customNickname: 'Vaibhav & Maya',
-      createdAt: DateTime(2023, 6, 15),
-      partnerProfile: UserProfile(
-        id: 'partner_maya',
-        email: 'maya@haven.app',
-        fullName: 'Maya Chen',
-        nickname: 'Maya',
-        mood: 'loved',
-        moodEmoji: '🥰',
-        isOnline: true,
-        createdAt: DateTime(2023, 6, 15),
-      ),
-    );
-    return _localDemoRelationship!;
+    return null;
   }
 
   /// Create a new relationship with a 6-character code

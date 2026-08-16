@@ -17,131 +17,43 @@ class ChatRepository {
 
   /// Get list of DM conversation threads for Instagram-style inbox
   Future<List<ConversationThread>> getConversationThreads() async {
-    // In local demo or offline mode, return rich connected threads
-    return [
-      ConversationThread(
-        id: 'conv_maya',
-        participant: UserProfile(
-          id: 'user_maya',
-          email: 'maya@haven.app',
-          fullName: 'Maya Lin',
-          nickname: 'Maya',
-          avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&q=80',
-          mood: 'excited',
-          moodEmoji: '✨',
-          createdAt: DateTime.now().subtract(const Duration(days: 428)),
-        ),
-        lastMessage: 'I found this amazing sunset spot for tomorrow! 🌅✨',
-        lastMessageTime: DateTime.now().subtract(const Duration(minutes: 8)),
-        unreadCount: 2,
-        isOnline: true,
-        isSpecialCouple: true,
-        activeNote: 'Designing our next getaway ✨',
-      ),
-      ConversationThread(
-        id: 'conv_elena',
-        participant: UserProfile(
-          id: 'usr_elena',
-          email: 'elena@haven.app',
-          fullName: 'Elena Rostova',
-          nickname: 'Elena',
-          avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&q=80',
-          mood: 'creative',
-          moodEmoji: '🎨',
-          createdAt: DateTime.now().subtract(const Duration(days: 30)),
-        ),
-        lastMessage: 'Loved your latest reel! The aesthetic is incredible 🎬',
-        lastMessageTime: DateTime.now().subtract(const Duration(hours: 1)),
-        unreadCount: 1,
-        isOnline: true,
-        activeNote: 'Listening to jazz 🎷',
-      ),
-      ConversationThread(
-        id: 'conv_sophia',
-        participant: UserProfile(
-          id: 'usr_sophia',
-          email: 'sophia@haven.app',
-          fullName: 'Sophia Laurent',
-          nickname: 'Sophia',
-          avatarUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&q=80',
-          mood: 'peaceful',
-          moodEmoji: '🌿',
-          createdAt: DateTime.now().subtract(const Duration(days: 20)),
-        ),
-        lastMessage: 'See you at the coffee shop tomorrow! ☕',
-        lastMessageTime: DateTime.now().subtract(const Duration(hours: 4)),
-        unreadCount: 0,
-        isOnline: false,
-        activeNote: 'Sunset walk 🌊',
-      ),
-      ConversationThread(
-        id: 'conv_liam',
-        participant: UserProfile(
-          id: 'usr_liam',
-          email: 'liam@haven.app',
-          fullName: 'Liam Walker',
-          nickname: 'Liam',
-          avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80',
-          mood: 'adventurous',
-          moodEmoji: '🏔️',
-          createdAt: DateTime.now().subtract(const Duration(days: 15)),
-        ),
-        lastMessage: 'Hey! How did the drone shot in the mountains go?',
-        lastMessageTime: DateTime.now().subtract(const Duration(days: 1)),
-        unreadCount: 0,
-        isOnline: true,
-        activeNote: 'Coding late ☕',
-      ),
-      ConversationThread(
-        id: 'conv_marcus',
-        participant: UserProfile(
-          id: 'usr_marcus',
-          email: 'marcus@haven.app',
-          fullName: 'Marcus Vance',
-          nickname: 'Marcus',
-          avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&q=80',
-          mood: 'focused',
-          moodEmoji: '🎵',
-          createdAt: DateTime.now().subtract(const Duration(days: 10)),
-        ),
-        lastMessage: 'Sent a reel by @elena',
-        lastMessageTime: DateTime.now().subtract(const Duration(days: 2)),
-        unreadCount: 0,
-        isOnline: false,
-      ),
-    ];
+    final userId = currentUserId;
+    if (userId == null) return [];
+
+    try {
+      final relationships = await _client
+          .from('relationships')
+          .select('*, user1:profiles!user1_id(*), user2:profiles!user2_id(*)')
+          .or('user1_id.eq.$userId,user2_id.eq.$userId')
+          .eq('status', 'active');
+
+      final List<ConversationThread> threads = [];
+      for (final rel in relationships as List) {
+        final u1 = rel['user1'];
+        final u2 = rel['user2'];
+        final partnerMap = (rel['user1_id'] == userId) ? u2 : u1;
+        if (partnerMap != null) {
+          final partner = UserProfile.fromJson(partnerMap);
+          threads.add(
+            ConversationThread(
+              id: rel['id'] as String,
+              participant: partner,
+              lastMessage: 'Tap to chat with your partner 💕',
+              lastMessageTime: DateTime.tryParse(rel['updated_at'] ?? '') ?? DateTime.now(),
+              unreadCount: 0,
+              isOnline: partner.isOnline,
+              isSpecialCouple: true,
+            ),
+          );
+        }
+      }
+      return threads;
+    } catch (_) {
+      return [];
+    }
   }
 
-  final List<MessageModel> _localMessages = [
-    MessageModel(
-      id: 'demo_msg_1',
-      relationshipId: 'demo_couple_space',
-      senderId: 'user_maya',
-      content: 'Good morning love! ✨ Can\'t wait for our rooftop dinner tonight 🌅',
-      createdAt: DateTime.now().subtract(const Duration(hours: 4)),
-    ),
-    MessageModel(
-      id: 'demo_msg_2',
-      relationshipId: 'demo_couple_space',
-      senderId: 'usr_me',
-      content: 'Good morning sweetheart! 🥰 I booked our favorite table right at sunset. 7:30 PM!',
-      createdAt: DateTime.now().subtract(const Duration(hours: 3, minutes: 45)),
-    ),
-    MessageModel(
-      id: 'demo_msg_3',
-      relationshipId: 'demo_couple_space',
-      senderId: 'user_maya',
-      content: 'You\'re the absolute best ❤️ I\'m wearing that dress you love.',
-      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-    ),
-    MessageModel(
-      id: 'demo_msg_4',
-      relationshipId: 'demo_couple_space',
-      senderId: 'usr_me',
-      content: 'Counting down the hours! See you soon 🥂💕',
-      createdAt: DateTime.now().subtract(const Duration(minutes: 25)),
-    ),
-  ];
+  final List<MessageModel> _localMessages = [];
 
   List<MessageModel> getLocalMessages(String relationshipId) {
     return List.unmodifiable(_localMessages);
@@ -150,19 +62,23 @@ class ChatRepository {
   /// Stream messages in real-time for a relationship (instantly yields cached messages)
   Stream<List<MessageModel>> getMessagesStream(String relationshipId) async* {
     yield _localMessages;
-    try {
-      final stream = _client
-          .from('messages')
-          .stream(primaryKey: ['id'])
-          .eq('relationship_id', relationshipId)
-          .order('created_at', ascending: true)
-          .map((data) {
-            final remote = data.map((json) => MessageModel.fromJson(json)).toList();
-            return remote.isNotEmpty ? remote : _localMessages;
-          });
-      yield* stream;
-    } catch (_) {
-      yield _localMessages;
+    if (relationshipId.isNotEmpty) {
+      try {
+        final stream = _client
+            .from('messages')
+            .stream(primaryKey: ['id'])
+            .eq('relationship_id', relationshipId)
+            .order('created_at', ascending: true)
+            .map((data) {
+              final remote = data.map((json) => MessageModel.fromJson(json)).toList();
+              _localMessages.clear();
+              _localMessages.addAll(remote);
+              return _localMessages;
+            });
+        yield* stream;
+      } catch (_) {
+        yield _localMessages;
+      }
     }
   }
 

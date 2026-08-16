@@ -115,7 +115,7 @@ class UsHomeScreen extends StatelessWidget {
                                             ? Text(
                                                 (partner?.displayName.isNotEmpty == true
                                                     ? partner!.displayName[0]
-                                                    : 'P'),
+                                                    : (user?.displayName.isNotEmpty == true ? user!.displayName[0] : 'U')),
                                                 style: const TextStyle(
                                                   fontSize: 22,
                                                   fontWeight: FontWeight.w700,
@@ -124,26 +124,27 @@ class UsHomeScreen extends StatelessWidget {
                                               )
                                             : null,
                                       ),
-                                      Positioned(
-                                        right: 0,
-                                        bottom: 0,
-                                        child: Container(
-                                          width: 14,
-                                          height: 14,
-                                          decoration: BoxDecoration(
-                                            color: partner?.isOnline == true
-                                                ? AppColors.success
-                                                : Colors.grey,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: isDark
-                                                  ? AppColors.darkCard
-                                                  : AppColors.lightCard,
-                                              width: 2.5,
+                                      if (partner != null)
+                                        Positioned(
+                                          right: 0,
+                                          bottom: 0,
+                                          child: Container(
+                                            width: 14,
+                                            height: 14,
+                                            decoration: BoxDecoration(
+                                              color: partner.isOnline == true
+                                                  ? AppColors.success
+                                                  : Colors.grey,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: isDark
+                                                    ? AppColors.darkCard
+                                                    : AppColors.lightCard,
+                                                width: 2.5,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
                                     ],
                                   ),
                                   const SizedBox(width: 16),
@@ -152,7 +153,7 @@ class UsHomeScreen extends StatelessWidget {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          partner?.displayName ?? 'Your Partner',
+                                          partner?.displayName ?? (user?.displayName ?? 'Your Haven Space'),
                                           style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.w600,
@@ -160,9 +161,9 @@ class UsHomeScreen extends StatelessWidget {
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          partner?.isOnline == true
-                                              ? 'Active now'
-                                              : 'Last active recently',
+                                          partner != null
+                                              ? (partner.isOnline ? 'Active now' : 'Last active recently')
+                                              : 'Invite your partner to connect ✨',
                                           style: TextStyle(
                                             fontSize: 13,
                                             color: partner?.isOnline == true
@@ -175,39 +176,40 @@ class UsHomeScreen extends StatelessWidget {
                                       ],
                                     ),
                                   ),
-                                  // Partner Mood Badge
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 8),
-                                    decoration: BoxDecoration(
-                                      color: isDark
-                                          ? AppColors.darkSurfaceElevated
-                                          : AppColors.lightSurfaceElevated,
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(
+                                  // Partner Mood Badge or Invite Button
+                                  if (partner != null)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 8),
+                                      decoration: BoxDecoration(
                                         color: isDark
-                                            ? AppColors.darkBorder
-                                            : AppColors.lightBorder,
+                                            ? AppColors.darkSurfaceElevated
+                                            : AppColors.lightSurfaceElevated,
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: isDark
+                                              ? AppColors.darkBorder
+                                              : AppColors.lightBorder,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            partner.moodEmoji ?? '🥰',
+                                            style: const TextStyle(fontSize: 18),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            partner.mood ?? 'Loved',
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          partner?.moodEmoji ?? '🥰',
-                                          style: const TextStyle(fontSize: 18),
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          partner?.mood ?? 'Loved',
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
                                 ],
                               ),
 
@@ -296,7 +298,7 @@ class UsHomeScreen extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'TOGETHER FOR',
+                                    relationship != null ? 'TOGETHER FOR' : 'COUPLE SANCTUARY',
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w700,
@@ -306,64 +308,86 @@ class UsHomeScreen extends StatelessWidget {
                                           : AppColors.champagneDark,
                                     ),
                                   ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.roseDust.withOpacity(0.15),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      '${anniversaryInfo.yearsCount} Year${anniversaryInfo.yearsCount == 1 ? '' : 's'}',
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.warmCopper,
+                                  if (relationship != null)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.roseDust.withOpacity(0.15),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        '${anniversaryInfo.yearsCount} Year${anniversaryInfo.yearsCount == 1 ? '' : 's'}',
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.warmCopper,
+                                        ),
                                       ),
                                     ),
-                                  ),
                                 ],
                               ),
                               const SizedBox(height: 12),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.baseline,
-                                textBaseline: TextBaseline.alphabetic,
-                                children: [
-                                  Text(
-                                    '$daysTogether',
-                                    style: const TextStyle(
-                                      fontSize: 48,
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: -1,
+                              if (relationship != null) ...[
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                                  textBaseline: TextBaseline.alphabetic,
+                                  children: [
+                                    Text(
+                                      '$daysTogether',
+                                      style: const TextStyle(
+                                        fontSize: 48,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: -1,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Text(
-                                    'Days',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500,
+                                    const SizedBox(width: 8),
+                                    const Text(
+                                      'Days',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                children: [
-                                  const Icon(Icons.celebration_outlined,
-                                      size: 16, color: AppColors.roseDust),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '${anniversaryInfo.daysRemaining} days until next anniversary',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: isDark
-                                          ? AppColors.textSecondaryDark
-                                          : AppColors.textSecondaryLight,
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.celebration_outlined,
+                                        size: 16, color: AppColors.roseDust),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '${anniversaryInfo.daysRemaining} days until next anniversary',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: isDark
+                                            ? AppColors.textSecondaryDark
+                                            : AppColors.textSecondaryLight,
+                                      ),
                                     ),
+                                  ],
+                                ),
+                              ] else ...[
+                                const Text(
+                                  'Ready to Begin',
+                                  style: TextStyle(
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: -0.5,
                                   ),
-                                ],
-                              ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Pair with your partner to start counting your days together and sync shared milestones.',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: isDark
+                                        ? AppColors.textSecondaryDark
+                                        : AppColors.textSecondaryLight,
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ).animate().fadeIn(delay: 150.ms),
