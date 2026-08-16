@@ -71,11 +71,13 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     mood_updated_at TIMESTAMPTZ DEFAULT NOW(),
     last_seen TIMESTAMPTZ DEFAULT NOW(),
     is_online BOOLEAN DEFAULT false,
+    phone TEXT UNIQUE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_profiles_email ON public.profiles(email);
+CREATE INDEX IF NOT EXISTS idx_profiles_phone ON public.profiles(phone);
 
 -- 3.2 Relationships Table
 CREATE TABLE IF NOT EXISTS public.relationships (
@@ -96,6 +98,8 @@ CREATE TABLE IF NOT EXISTS public.relationships (
 CREATE INDEX IF NOT EXISTS idx_relationships_user1 ON public.relationships(user1_id);
 CREATE INDEX IF NOT EXISTS idx_relationships_user2 ON public.relationships(user2_id);
 CREATE INDEX IF NOT EXISTS idx_relationships_invite_code ON public.relationships(invite_code);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_single_active_rel_user1 ON public.relationships(user1_id) WHERE status = 'active';
+CREATE UNIQUE INDEX IF NOT EXISTS idx_single_active_rel_user2 ON public.relationships(user2_id) WHERE status = 'active';
 
 -- 3.3 Messages Table
 CREATE TABLE IF NOT EXISTS public.messages (
